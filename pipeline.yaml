@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: deductomatic-pipeline
+spec:
+  description: Install dependencies, run Jasmine tests, and build only after tests pass.
+  params:
+    - name: IMAGE
+      type: string
+    - name: DOCKERFILE
+      type: string
+      default: ./Dockerfile
+    - name: CONTEXT
+      type: string
+      default: .
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: npminstall
+      taskRef:
+        name: npminstall
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: jasmine
+      runAfter:
+        - npminstall
+      taskRef:
+        name: jasmine
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build
+      runAfter:
+        - jasmine
+      taskRef:
+        name: build
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: DOCKERFILE
+          value: $(params.DOCKERFILE)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      workspaces:
+        - name: source
+          workspace: shared-workspace

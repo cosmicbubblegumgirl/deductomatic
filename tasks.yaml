@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npminstall
+spec:
+  description: Install project dependencies for DeductoMatic.
+  workspaces:
+    - name: source
+  steps:
+    - name: install
+      image: node:18-alpine
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        npm install
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: jasmine
+spec:
+  description: Run Jasmine unit tests for DeductoMatic.
+  workspaces:
+    - name: source
+  steps:
+    - name: test
+      image: node:18-alpine
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        npx jasmine
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build
+spec:
+  description: Build and push the DeductoMatic container image.
+  params:
+    - name: IMAGE
+      description: Fully qualified image name.
+      type: string
+    - name: DOCKERFILE
+      description: Path to the Dockerfile.
+      type: string
+      default: ./Dockerfile
+    - name: CONTEXT
+      description: Build context directory.
+      type: string
+      default: .
+  workspaces:
+    - name: source
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:v1.34.0
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        buildah bud --storage-driver=vfs -f $(params.DOCKERFILE) -t $(params.IMAGE) $(params.CONTEXT)
+        buildah push --storage-driver=vfs $(params.IMAGE)

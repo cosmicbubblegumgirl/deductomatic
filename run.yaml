@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: deductomatic-run-
+spec:
+  pipelineRef:
+    name: deductomatic-pipeline
+  serviceAccountName: pipeline
+  params:
+    - name: IMAGE
+      value: us.icr.io/REPLACE_WITH_YOUR_NAMESPACE/deductomatic
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: pipeline-pvc

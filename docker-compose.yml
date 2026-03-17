@@ -1,0 +1,5 @@
+services:
+  sa-tax-studio-3d:
+    build: .
+    ports:
+      - "8080:80"

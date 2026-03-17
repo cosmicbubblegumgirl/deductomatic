@@ -1,0 +1,27 @@
+{
+  "name": "sa-tax-studio-3d",
+  "version": "2.1.0",
+  "description": "South African tax calculator in rands with a 3D interactive keypad, custom display modes, Jasmine tests, Docker, and Tekton pipeline files.",
+  "main": "taxCalculator.js",
+  "scripts": {
+    "start": "http-server . -p 5500 -c-1",
+    "test": "jasmine",
+    "docker:build": "docker build -t sa-tax-studio-3d .",
+    "docker:run": "docker run --rm -p 8080:80 sa-tax-studio-3d"
+  },
+  "keywords": [
+    "south-africa",
+    "tax",
+    "calculator",
+    "jasmine",
+    "docker",
+    "tekton",
+    "vscode"
+  ],
+  "author": "OpenAI",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "jasmine": "^5.1.0"
+  }
+}
